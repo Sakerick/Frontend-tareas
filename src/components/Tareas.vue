@@ -18,27 +18,26 @@
         <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
         <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
         <v-list v-else-if="tasks.length > 0">
-          <v-list-item v-for="task in tasks" :key="task.id" class="d-flex align-center">
-            <v-list-item-content>
-              <v-list-item-title :class="{ 'text-decoration-line-through': task.completada }">
-                {{ task.titulo }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                Estado: {{ task.completada ? 'Completada' : 'Pendiente' }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn icon @click="toggleTaskStatus(task)">
-                <v-icon>{{ task.completada ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
-              </v-btn>
-              <v-btn icon @click="editTask(task)">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn icon color="error" @click="deleteTask(task.id)">
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
+          <v-list-item v-for="task in tasks" :key="task.id">
+  <v-list-item-title :class="{ 'text-decoration-line-through': task.completada }">
+    {{ task.titulo }}
+  </v-list-item-title>
+  <v-list-item-subtitle>
+    Estado: {{ task.completada ? 'Completada' : 'Pendiente' }}
+  </v-list-item-subtitle>
+
+  <template #append>
+    <v-btn icon @click="toggleTaskStatus(task)">
+      <v-icon>{{ task.completada ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
+    </v-btn>
+    <v-btn icon @click="editTask(task)">
+      <v-icon>mdi-pencil</v-icon>
+    </v-btn>
+    <v-btn icon color="error" @click="deleteTask(task.id)">
+      <v-icon>mdi-delete</v-icon>
+    </v-btn>
+  </template>
+</v-list-item>
         </v-list>
         <p v-else-if="!loading">No hay tareas disponibles.</p>
       </v-card-text>
@@ -66,8 +65,10 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
+import { useApi } from '@/composables/useApi'
 
-const API_BASE_URL = 'http://localhost:3100/api/tareas'
+const { fetchWithAuth } = useApi()
+const TAREAS_PATH = '/api/tareas'
 
 const tasks = ref<{ id: number; titulo: string; completada: boolean }[]>([])
 const newTask = ref('')
@@ -80,7 +81,7 @@ const fetchTasks = async () => {
   try {
     loading.value = true
     error.value = ''
-    const response = await fetch(API_BASE_URL)
+    const response = await fetchWithAuth(TAREAS_PATH)
     if (!response.ok) throw new Error('Error al cargar tareas')
     const data = await response.json()
     tasks.value = data.data || []
@@ -96,7 +97,7 @@ const addTask = async () => {
   if (!newTask.value.trim()) return
 
   try {
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetchWithAuth(TAREAS_PATH, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -125,7 +126,7 @@ const editTask = (task: { id: number; titulo: string; completada: boolean }) => 
 
 const toggleTaskStatus = async (task: { id: number; titulo: string; completada: boolean }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${task.id}`, {
+    const response = await fetchWithAuth(`${TAREAS_PATH}/${task.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -150,7 +151,7 @@ const toggleTaskStatus = async (task: { id: number; titulo: string; completada: 
 
 const saveEdit = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${editingTask.value.id}`, {
+    const response = await fetchWithAuth(`${TAREAS_PATH}/${editingTask.value.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ const deleteTask = async (id: number) => {
   if (!confirm('¿Estás seguro de que quieres eliminar esta tarea?')) return
 
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetchWithAuth(`${TAREAS_PATH}/${id}`, {
       method: 'DELETE',
     })
 

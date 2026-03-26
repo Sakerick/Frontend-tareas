@@ -1,10 +1,8 @@
 <template>
   <v-sheet class="bg-deep-purple pa-12" rounded>
     <v-card class="mx-auto px-6 py-8" max-width="344">
-      <v-form
-        v-model="form"
-        @submit.prevent="onSubmit"
-      >
+      <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
+      <v-form v-model="form" @submit.prevent="onSubmit">
         <v-text-field
           v-model="email"
           :readonly="loading"
@@ -12,19 +10,16 @@
           class="mb-2"
           label="Email"
           clearable
-        ></v-text-field>
-
+        />
         <v-text-field
-          v-model="password"
+          v-model="apiKey"
           :readonly="loading"
           :rules="[required]"
-          label="Password"
-          placeholder="Enter your password"
+          label="API Key"
+          placeholder="Tu API Key"
           clearable
-        ></v-text-field>
-
+        />
         <br>
-
         <v-btn
           :disabled="!form"
           :loading="loading"
@@ -40,20 +35,34 @@
     </v-card>
   </v-sheet>
 </template>
+
 <script lang="ts" setup>
-  import { ref } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
-  const form = ref(false)
-  const email = ref(null)
-  const password = ref(null)
-  const loading = ref(false)
+const form = ref(false)
+const email = ref('')
+const apiKey = ref('')
+const loading = ref(false)
+const error = ref('')
 
-  function onSubmit () {
-    if (!form.value) return
-    loading.value = true
-    setTimeout(() => (loading.value = false), 2000)
+const router = useRouter()
+const auth = useAuthStore()
+
+const onSubmit = async () => {
+  if (!form.value) return
+  loading.value = true
+  error.value = ''
+  try {
+    await auth.login(email.value, apiKey.value)
+    router.push('/') // Redirige al inicio tras login exitoso
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Error al iniciar sesión'
+  } finally {
+    loading.value = false
   }
-  function required (v: String) {
-    return !!v || 'Field is required'
-  }
+}
+
+const required = (v: string) => !!v || 'Field is required'
 </script>
