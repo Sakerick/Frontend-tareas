@@ -15,8 +15,8 @@
           v-model="apiKey"
           :readonly="loading"
           :rules="[required]"
-          label="API Key"
-          placeholder="Tu API Key"
+          label="Password"
+          placeholder="Tu contraseña"
           clearable
         />
         <br>
