@@ -18,27 +18,49 @@
         <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
         <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
         <v-list v-else-if="tasks.length > 0">
-          <v-list-item v-for="task in tasks" :key="task.id">
-  <v-list-item-title :class="{ 'text-decoration-line-through': task.completada }">
-    {{ task.titulo }}
-  </v-list-item-title>
-  <v-list-item-subtitle>
-    Estado: {{ task.completada ? 'Completada' : 'Pendiente' }}
-  </v-list-item-subtitle>
+  <v-list-item v-for="task in tasks" :key="task.id" border class="mb-2 rounded-lg">
+    <v-list-item-title :class="{ 'text-decoration-line-through text-grey': task.completada }" class="text-h6">
+      {{ task.titulo }}
+    </v-list-item-title>
 
-  <template #append>
-    <v-btn icon @click="toggleTaskStatus(task)">
-      <v-icon>{{ task.completada ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
-    </v-btn>
-    <v-btn icon @click="editTask(task)">
-      <v-icon>mdi-pencil</v-icon>
-    </v-btn>
-    <v-btn icon color="error" @click="deleteTask(task.id)">
-      <v-icon>mdi-delete</v-icon>
-    </v-btn>
-  </template>
-</v-list-item>
-        </v-list>
+    <v-list-item-subtitle>
+      <div class="mt-2 mb-1">
+        <v-chip
+          v-for="tag in task.Tags"
+          :key="tag.id"
+          :color="tag.color || 'primary'"
+          size="x-small"
+          class="mr-1 font-weight-bold"
+          variant="elevated"
+        >
+          {{ tag.nombre }}
+        </v-chip>
+        <span v-if="!task.Tags || task.Tags.length === 0" class="text-caption text-italic text-grey">
+          Sin etiquetas
+        </span>
+      </div>
+      
+      <v-icon size="small" :color="task.completada ? 'success' : 'warning'">
+        {{ task.completada ? 'mdi-check-decagram' : 'mdi-clock-outline' }}
+      </v-icon>
+      <span class="ml-1 text-caption">
+        {{ task.completada ? 'Finalizada' : 'En progreso' }}
+      </span>
+    </v-list-item-subtitle>
+
+    <template #append>
+      <v-btn icon variant="text" color="primary" @click="toggleTaskStatus(task)">
+        <v-icon>{{ task.completada ? 'mdi-undo' : 'mdi-check' }}</v-icon>
+      </v-btn>
+      <v-btn icon variant="text" color="grey-darken-1" @click="editTask(task)">
+        <v-icon>mdi-pencil-outline</v-icon>
+      </v-btn>
+      <v-btn icon variant="text" color="error" @click="deleteTask(task.id)">
+        <v-icon>mdi-trash-can-outline</v-icon>
+      </v-btn>
+    </template>
+  </v-list-item>
+</v-list>
         <p v-else-if="!loading">No hay tareas disponibles.</p>
       </v-card-text>
     </v-card>
@@ -70,28 +92,52 @@ import { useApi } from '@/composables/useApi'
 const { fetchWithAuth } = useApi()
 const TAREAS_PATH = '/api/tareas'
 
-const tasks = ref<{ id: number; titulo: string; completada: boolean }[]>([])
+interface Tag {
+  id: number;
+  nombre: string;
+  color: string;
+}
+
+interface Tarea {
+  id: number;
+  titulo: string;
+  completada: boolean;
+  Tags?: Tag[]; // El "?" es porque a veces una tarea puede no tener tags
+}
 const newTask = ref('')
 const editDialog = ref(false)
-const editingTask = ref<{ id: number; titulo: string; completada: boolean }>({ id: 0, titulo: '', completada: false })
 const loading = ref(false)
 const error = ref('')
+// Ahora usamos la interfaz en el ref
+const tasks = ref<Tarea[]>([])
+
+// También actualizamos el ref de edición para que coincida
+const editingTask = ref<Tarea>({ id: 0, titulo: '', completada: false })
 
 const fetchTasks = async () => {
   try {
-    loading.value = true
-    error.value = ''
-    const response = await fetchWithAuth(TAREAS_PATH)
-    if (!response.ok) throw new Error('Error al cargar tareas')
-    const data = await response.json()
-    tasks.value = data.data || []
+    loading.value = true;
+    error.value = '';
+    const response = await fetchWithAuth(TAREAS_PATH);
+    
+    if (response.status === 401) {
+      error.value = "Sesión expirada. Por favor inicia sesión de nuevo.";
+      // Opcional: router.push('/login')
+      return;
+    }
+
+    const data = await response.json();
+    
+    // Si tu backend devuelve las tareas directo:
+    tasks.value = Array.isArray(data) ? data : (data.data || []);
+    
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Error desconocido'
-    console.error('Error al cargar tareas:', err)
+    error.value = 'No se pudo conectar con el servidor.';
+    console.error(err);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const addTask = async () => {
   if (!newTask.value.trim()) return

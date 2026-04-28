@@ -3,10 +3,13 @@ import Vue from '@vitejs/plugin-vue'
 import Fonts from 'unplugin-fonts/vite'
 import { defineConfig } from 'vite'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-
+import mkcert from 'vite-plugin-mkcert'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    mkcert(),
+    basicSsl(),
     Vue({
       template: { transformAssetUrls },
     }),

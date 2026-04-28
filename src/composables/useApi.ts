@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/stores/auth'
 
-const API_BASE = 'http://localhost:3100'
+const API_BASE = 'https://localhost:3100'
 
 export const useApi = () => {
   const auth = useAuthStore()

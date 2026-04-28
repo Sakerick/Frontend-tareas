@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-const API_BASE = 'http://localhost:3100'
+const API_BASE = 'https://localhost:3100'
 
 export const useAuthStore = defineStore('auth', () => {
   const csrfToken = ref<string>(localStorage.getItem('csrf_token') || '')
@@ -68,6 +68,23 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('csrf_token')
     return false
   }
-
-  return { csrfToken, isAuthenticated, user, login, logout, checkAuth }
+  // Función para verificar sesión actual (llamar en onMounted del App.vue o Router)
+ const checkSession = async () => {
+  try {
+    const res = await fetch('https://localhost:3100/api/auth/status', { 
+      credentials: 'include' 
+    });
+    if (res.ok) {
+      const data = await res.json();
+      user.value = data.user;
+      isAuthenticated.value = true;
+      return true; // Sesión válida
+    }
+  } catch (e) {
+    user.value = null;
+    isAuthenticated.value = false;
+  }
+  return false; // Sin sesión
+};
+  return { csrfToken, isAuthenticated, user, login, logout, checkAuth, checkSession }
 })

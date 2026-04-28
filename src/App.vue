@@ -1,5 +1,11 @@
 <template>
   <v-app>
+    <v-main v-if="!initialized">
+      <v-container class="text-center">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <p class="mt-2">Cargando...</p>
+      </v-container>
+    </v-main>
     <v-app-bar app>
       <v-toolbar-title>My App</v-toolbar-title>
       <v-btn to="/" color="primary">Main</v-btn>
@@ -18,12 +24,19 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ref, onMounted } from 'vue'
 
 const auth = useAuthStore()
+const initialized = ref(false)
 const router = useRouter()
 
 const handleLogout = async () => {
-  await auth.logout()
-  router.push('/login')
+  // Redirigir al endpoint de logout del backend
+  window.location.href = 'https://localhost:3100/api/auth/logout';
 }
+onMounted(async () => {
+  await auth.checkSession()
+  initialized.value = true
+}) 
+
 </script>

@@ -33,7 +33,19 @@
         </v-btn>
       </v-form>
     </v-card>
+
+     <v-divider class="my-4">
+        <v-btn
+        variant="outlined"
+        block
+        prepend-icon="mdi-google"
+        @click="loginWithGoogle"
+      >
+        Ingresar con Google
+      </v-btn>
+      </v-divider>
   </v-sheet>
+ 
 </template>
 
 <script lang="ts" setup>
@@ -65,4 +77,9 @@ const onSubmit = async () => {
 }
 
 const required = (v: string) => !!v || 'Field is required'
+
+const loginWithGoogle = () => {
+  // Redirigimos directamente a la ruta del backend
+  window.location.href = 'https://localhost:3100/api/auth/google'
+}
 </script>
