@@ -1,78 +1,86 @@
 # frontend_tareas
 
-Scaffolded with Vuetify CLI.
-
-## ❗️ Documentation
-
-- Primary docs: https://vuetifyjs.com/
-- Getting started guide: https://vuetifyjs.com/en/getting-started/installation/
-- Community support: https://community.vuetifyjs.com/
-- Issue tracker: https://issues.vuetifyjs.com/
+Frontend de gestión de tareas desarrollado con Vue 3, Vite y Vuetify.
 
 ## 🧱 Stack
 
-- Framework: Vue 3 + Vite
+- Framework: Vue 3
+- Bundler: Vite
 - UI Library: Vuetify
-- Language: TypeScript
+- Estado: Pinia
+- Routing: Vue Router
+- Lenguaje: TypeScript
 - Package manager: npm
 
-## 🧭 Start Here
+## 🚀 Descripción del proyecto
 
-- Main entry: `src/main.ts`
-- Main app component: `src/App.vue`
-- Main styles: `src/styles/`
-- Plugin setup: `src/plugins/`
+Esta aplicación es un frontend para un sistema de administración de tareas con autenticación y roles.
 
-## 📁 Project Structure
+- Pantalla de login con credenciales y opción de inicio de sesión con Google.
+- Panel de tareas donde el usuario puede crear, editar, completar y eliminar tareas.
+- Filtrado de tareas por título y etiquetas.
+- Creación de nuevas etiquetas desde el formulario de tareas.
+- Sección de administrador con estadísticas y listado de usuarios.
 
-- `src/main.ts` — application entry point
-- `src/App.vue` — root component
-- `src/components/` — reusable Vue components
-- `src/plugins/` — plugin registration and setup
-- `src/styles/` — global styles and theme settings
-- `public/` — static public files
+## 📍 Rutas principales
 
-## ✨ Enabled Features
+- `/login` — Página de login.
+- `/tareas` — Tablero principal de tareas, protegido por autenticación.
+- `/admin` — Panel de administración, acceso restringido a usuarios con rol admin.
+- `/` — Redirige automáticamente a `/tareas`.
 
-- Vuetify MCP
-- Vue Router
+## 🧩 Estructura clave
 
-## 💿 Install
+- `src/main.ts` — Punto de entrada de la aplicación.
+- `src/App.vue` — Componente raíz.
+- `src/router/index.ts` — Configuración de rutas y guardias de navegación.
+- `src/stores/auth.ts` — Store de autenticación con login, logout y verificación de sesión.
+- `src/composables/useApi.ts` — Helper para llamadas a la API con CSRF y credenciales.
+- `src/components/LoginDesign.vue` — Formulario de inicio de sesión.
+- `src/components/Tareas.vue` — Vista principal de tareas con creación, edición y filtrado.
+- `src/components/AdminPanel.vue` — Panel administrativo con métricas y listado de usuarios.
 
-Use your selected package manager (npm) to install dependencies:
+## ⚙️ Configuración del entorno
+
+La app consume una API en `https://localhost:3100`.
+
+Variables importantes:
+
+- `VITE_API_KEY` — API key usada en el login.
+
+## 💡 Usuario de prueba
+
+- Email: `root@local`
+- Contraseña: `rootpass`
+
+## 💿 Instalación
+
+Instala dependencias con npm:
 
 ```bash
 npm install
 ```
 
-## 🚀 Quick Start
+## 🔧 Desarrollo
+
+Inicia el servidor de desarrollo:
 
 ```bash
-npm install
 npm run dev
 ```
 
-## 🏗️ Build
+## 🧪 Scripts disponibles
 
-```bash
-npm run build
-```
+- `npm run dev` — Inicia el servidor de desarrollo.
+- `npm run build` — Genera el build de producción.
+- `npm run preview` — Previsualiza el build.
+- `npm run build-only` — Construye el proyecto sin ejecutar preview.
+- `npm run type-check` — Comprueba tipos TypeScript.
+- `npm run mcp` — Ejecuta comandos de Vuetify MCP.
+- `npm run mcp:revert` — Revierte cambios de Vuetify MCP.
 
-## 🧪 Available Scripts
+## 📝 Notas
 
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
-- `npm run build-only`
-- `npm run type-check`
-- `npm run mcp`
-- `npm run mcp:revert`
-
-## 💪 Support Vuetify Development
-
-This project uses Vuetify - an MIT licensed Open Source project. We are glad to welcome contributors and any support for ongoing development:
-
-- Contribute to Vuetify and ecosystem projects: https://github.com/vuetifyjs
-- Request enterprise support: https://support.vuetifyjs.com/
-- Sponsor on GitHub: https://github.com/sponsors/vuetifyjs
-- Support on Open Collective: https://opencollective.com/vuetify
+- El frontend gestiona la sesión con cookies y tokens CSRF.
+- Si la sesión expira, redirige al usuario a `/login`.
+- El panel de administración requiere que el usuario tenga `isAdmin`.
