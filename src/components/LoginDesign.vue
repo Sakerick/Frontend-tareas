@@ -12,11 +12,12 @@
           clearable
         />
         <v-text-field
-          v-model="apiKey"
+          v-model="password"
           :readonly="loading"
           :rules="[required]"
-          label="Password"
+          label="Contraseña"
           placeholder="Tu contraseña"
+          type="password"
           clearable
         />
         <br>
@@ -32,10 +33,9 @@
           Sign In
         </v-btn>
       </v-form>
-    </v-card>
 
-     <v-divider class="my-4">
-        <v-btn
+      <v-divider class="my-4" />
+      <v-btn
         variant="outlined"
         block
         prepend-icon="mdi-google"
@@ -43,9 +43,12 @@
       >
         Ingresar con Google
       </v-btn>
-      </v-divider>
+
+      <v-alert type="info" class="mt-4">
+        Usuario root local: <strong>root@local</strong> / <strong>rootpass</strong>
+      </v-alert>
+    </v-card>
   </v-sheet>
- 
 </template>
 
 <script lang="ts" setup>
@@ -53,9 +56,10 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+const API_KEY = import.meta.env.VITE_API_KEY || '1234'
 const form = ref(false)
 const email = ref('')
-const apiKey = ref('')
+const password = ref('')
 const loading = ref(false)
 const error = ref('')
 
@@ -67,8 +71,8 @@ const onSubmit = async () => {
   loading.value = true
   error.value = ''
   try {
-    await auth.login(email.value, apiKey.value)
-    router.push('/') // Redirige al inicio tras login exitoso
+    await auth.login(email.value, password.value, API_KEY)
+    router.push('/')
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Error al iniciar sesión'
   } finally {
@@ -79,7 +83,6 @@ const onSubmit = async () => {
 const required = (v: string) => !!v || 'Field is required'
 
 const loginWithGoogle = () => {
-  // Redirigimos directamente a la ruta del backend
   window.location.href = 'https://localhost:3100/api/auth/google'
 }
 </script>

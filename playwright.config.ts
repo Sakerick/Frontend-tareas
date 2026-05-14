@@ -26,7 +26,8 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+    baseURL: 'https://localhost:3000',
+    ignoreHTTPSErrors: true,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -44,10 +45,12 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // WebKit local tests can fail with self-signed certificates on Linux.
+    // Uncomment if you want to run WebKit after fixing local SSL trust.
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
 
     /* Test against mobile viewports. */
     // {
@@ -70,10 +73,13 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* Run your local dev server before starting the tests.
+     Also start the backend so the frontend can authenticate and create tareas. */
+  webServer: {
+    command: 'sh -c "cd ../Tareas-api && npm run dev & cd ../Frontend-tareas && npm run dev"',
+    url: 'https://localhost:3000',
+    reuseExistingServer: true,
+    ignoreHTTPSErrors: true,
+    timeout: 120000,
+  },
 });

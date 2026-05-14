@@ -11,6 +11,7 @@
       <v-btn to="/" color="primary">Main</v-btn>
       <template v-if="auth.isAuthenticated">
         <span class="mr-3 text-caption">{{ auth.user?.email }}</span>
+        <v-btn v-if="auth.user?.isAdmin" to="/admin" color="secondary" variant="outlined">Admin</v-btn>
         <v-btn color="error" @click="handleLogout">Logout</v-btn>
       </template>
       <v-btn v-else to="/login" color="primary">Login</v-btn>
@@ -31,12 +32,13 @@ const initialized = ref(false)
 const router = useRouter()
 
 const handleLogout = async () => {
-  // Redirigir al endpoint de logout del backend
-  window.location.href = 'https://localhost:3100/api/auth/logout';
+  await auth.logout()
+  router.push('/login')
 }
+
 onMounted(async () => {
   await auth.checkSession()
   initialized.value = true
-}) 
+})
 
 </script>
