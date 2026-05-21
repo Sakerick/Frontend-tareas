@@ -29,7 +29,7 @@
               clearable
             />
           </v-col>
-          <v-col cols="12" md="2" class="d-flex align-center">
+          <v-col cols="12" md="3" class="d-flex align-center">
             <v-btn class="mr-2" color="primary" @click="applyFilters">Buscar</v-btn>
             <v-btn variant="outlined" @click="resetFilters">Limpiar</v-btn>
           </v-col>
